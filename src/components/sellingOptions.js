@@ -1,13 +1,29 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
+import { setSelectedOptions, toggle } from "../redux/dropDownOptionSlice";
+import { setItemInfosPrice } from "../redux/itemInfoSlice";
+
+
 
 const SellingOptions = () => {
 
-    const [button , setButton] = useState(false)
+    const dispatch = useDispatch()
 
-    let bool = true
+    const button = useSelector(state => state.dropDownOptions.customShippingBool)
+    const dropDownOptions = useSelector(state => state.dropDownOptions)
+
+    const getOptionValue = (option) => option.i;
 
     const shippingChargeInputRef = useRef(null);
+
+    const handleTextClick = (inputRef) => {
+  
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }      
+  
+    };
 
     const handlePriceInput = (event , field) => {
   
@@ -18,22 +34,15 @@ const SellingOptions = () => {
           parsedValue = 0
         }
     
-    
+        dispatch(setItemInfosPrice({parsedValue , field}))
+
       }
 
-      const handleTextClick = (inputRef) => {
-  
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }      
-    
-      };
 
 
-    const datas = [
-        {value:"1" , label : "deneme" , i:1},
-        {value:"2" , label : "deneme nolan", i:2}
-    ]
+
+
+
 
     const customStyles = { //=> for dropdown menu customize
         
@@ -80,53 +89,95 @@ const SellingOptions = () => {
           }),
       };
 
-
     return (
-        <div className="bg-gray-200 rounded-md m-2 p-2">
-            <div className="mt-2">
+        <div className="bg-gray-200 rounded-md m-2 p-2 flex flex-col sm:flex-row">
+            <div className="m-0 sm:m-1 w-full flex flex-col">
+              <div className="text-xs font-bold flex mb-1 ml-1 items-center">Select Seller Type</div>
+              <div>
                 <Select
-                    options={datas}
+                    options={dropDownOptions.sellerType}
                     styles={customStyles}
                     isSearchable
+                    getOptionValue={getOptionValue}
+                    value={dropDownOptions.selectedSellerType}
+                    onChange={(value) => dispatch(setSelectedOptions({value, field : "selectedSellerType"}))}
                 />
-            </div>
-            {bool === true && (
-                <div className="w-full flex justify-between items-center p-2">
+              </div>
+
+              <div className={`transition-all duration-[500ms] ease-in-out flex justify-center items-center ${(dropDownOptions.selectedSellerType.value === "businessSeller" || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available") ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                <div className="w-full flex justify-between items-center p-1">
                     <div className="text-xs flex justify-center items-center">Custom Shipping Charge</div>
                     <div className="flex justify-center items-center">
                         <button
-                        onClick={(e) => setButton(!button)}
+                        onClick={(e) => dispatch(toggle())}
                         className={`relative inline-flex items-center cursor-pointer focus:outline-none w-12 ${
-                            button ? 'bg-sky-600 ' : 'bg-gray-400'
+                            (button || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available") ? 'bg-sky-600 ' : 'bg-gray-400'
                         } text-white px-1 py-1 rounded-full`}
                         >
                         <span
                             className={`${
-                            button ? 'translate-x-full text-sky-600' : 'translate-x-0 text-gray-500'
+                            (button || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available") ? 'translate-x-full text-sky-600' : 'translate-x-0 text-gray-500'
                             } inline-block w-5 h-5 bg-white rounded-full transform duration-300 transition-transform text-[8px]  flex justify-center items-center font-bold ease-in-out`}
-                        >{button ? "YES" : "NO"}</span>
+                        >{(button || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available") ? "YES" : "NO"}</span>
                         </button>
                     </div>
                 </div>
-            )}
-
-<div className={`transition-all duration-[500ms] ease-in-out flex justify-center items-center ${button ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
-            
-            <div className="flex justify-between items-center w-full pt-1 pl-2 pr-2 pb-1">
-
-
-                <div className="text-xs flex justify-center items-center cursor-pointer"
-                 onClick={() => handleTextClick(shippingChargeInputRef)}>Shipping Charge</div>
-
-                <div>
-                    <input
-                    ref={shippingChargeInputRef}
-                    className="p-2 w-28 h-9 rounded-md text-xs font-semibold"
-                    onChange={(e) => handlePriceInput(e , "shippingCharge")}
-                    />
                 </div>
+            
+
+          <div className={`transition-all duration-[500ms] ease-in-out flex justify-center items-center ${((button && dropDownOptions.selectedSellerType.value === "businessSeller") || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available")  ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+            
+            <div className="flex justify-between items-center w-full mt-1 mr-1 ml-1">
+
+
+                  <div className="text-xs flex justify-center items-center cursor-pointer"
+                  onClick={() => handleTextClick(shippingChargeInputRef)}>Shipping Charge</div>
+
+                  <div>
+                      <input
+                      ref={shippingChargeInputRef}
+                      className="p-2 w-28 h-9 rounded-md text-xs font-semibold"
+                      onChange={(e) => handlePriceInput(e , "shippingCharge")}
+                      />
+                  </div>
+                
+              </div>
+
+          </div>
+
+              <div className={`transition-all duration-[500ms] ease-in-out ${(button===false || dropDownOptions.selectedSellerType.value ==="individualSeller" || dropDownOptions.selectedItemCategory[dropDownOptions.selectedShippingMethod.value] === "not available") ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                <div className="text-xs font-bold flex ml-1 mb-1">Shipping Method</div>
+                <div className="">
+                  <Select
+                        options={dropDownOptions.shippingMethod}
+                        styles={customStyles}
+                        isSearchable
+                        getOptionValue={getOptionValue}
+                        value={dropDownOptions.selectedShippingMethod}
+                        onChange={(value) => dispatch(setSelectedOptions({value, field : "selectedShippingMethod"}))}
+                  />
+                </div>
+              </div>
+
+
 
             </div>
+            <div className='border-gray-400 border mt-3 sm:mt-1 ml-1 mr-1 mb-1'></div>
+            <div className="m-0 sm:m-1 w-full flex flex-col">
+
+              <div className="mb-1 flex flex-col">
+              <div className="text-xs font-bold flex ml-1 mt-1 mb-1">Select Item Category</div>
+                <Select
+                    options={dropDownOptions.itemOptions}
+                    styles={customStyles}
+                    isSearchable
+                    getOptionValue={getOptionValue}
+                    value={dropDownOptions.selectedItemCategory}
+                    onChange={(value) => dispatch(setSelectedOptions({value, field : "selectedItemCategory"}))}
+                />
+              </div>
+
+
 
             </div>
         </div>

@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { useDispatch } from "react-redux";
+import { setItemInfosPrice } from "../redux/itemInfoSlice";
 
 const ItemInfo = () => {
 
@@ -6,12 +8,15 @@ const ItemInfo = () => {
     const itemCostInputRef = useRef(null);
     const shippingChargeInputRef = useRef(null);
     const shippingCostInputRef = useRef(null);
-  
+
+    const dispatch = useDispatch()
+
     const handleTextClick = (inputRef) => {
   
       if (inputRef.current) {
         inputRef.current.focus();
-      }      
+      }     
+      
   
     };
   
@@ -24,7 +29,8 @@ const ItemInfo = () => {
         parsedValue = 0
       }
   
-  
+      dispatch(setItemInfosPrice({parsedValue , field}))
+
     }
 
     return (
@@ -42,7 +48,7 @@ const ItemInfo = () => {
                 <input
                 ref={itemPriceInputRef}
                 className="p-2 w-20 h-9 rounded-md text-xs font-semibold"
-                onChange={(e) => handlePriceInput(e , "itemSoldPrice")}
+                onChange={(e) => handlePriceInput(e , "itemPrice")}
                 />
               </div>
             </div>
