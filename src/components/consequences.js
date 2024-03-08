@@ -209,7 +209,7 @@ const Consequences = () => {
 
           <div className="flex justify-between mt-2 mb-2">
               <div className="flex justify-center items-center">Shipping Charge</div>
-              <div className="flex justify-center items-center font-bold mr-2">$ {shippingCharge.toFixed(2)}</div>
+              <div className="flex justify-center items-center mr-2">$ {shippingCharge.toFixed(2)}</div>
           </div>
 
       <div className='border-gray-400 border mt-2 mb-2'></div>
